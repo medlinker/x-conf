@@ -15,22 +15,20 @@ func CreatePrj(w http.ResponseWriter, r *http.Request) {
 	utils.Header(w)
 	ret := utils.NewRet()
 	if r.Method == "POST" {
-		env := strings.TrimSpace(r.PostFormValue("env"))
 		prjName := strings.TrimSpace(r.PostFormValue("prjName"))
-		if env == "" || prjName == "" {
-			ret.Code = utils.ErrParam
-			ret.Msg = "params error"
+		if utils.CheckParamsErr(&ret, prjName) {
 			goto OVER
 		}
 		err := goclient.CreateDir("/prjs/" + prjName)
 		if utils.CheckErr(err, &ret) {
 			goto OVER
 		}
-		err = goclient.CreateDir("/" + prjName + "/" + env)
-		utils.CheckErr(err, &ret)
+		for _, env := range utils.Envs {
+			err = goclient.CreateDir("/" + prjName + "/" + env)
+			utils.CheckErr(err, &ret)
+		}
 	} else {
-		ret.Code = utils.ErrMethod
-		ret.Msg = "request method error"
+		utils.SetMethodErr(&ret)
 	}
 OVER:
 	utils.Output(w, ret)
@@ -46,7 +44,7 @@ func PrjList(w http.ResponseWriter, r *http.Request) {
 		goto OVER
 	}
 	for _, node := range resp.Node.Nodes {
-		prjs = append(prjs, node.Key)
+		prjs = append(prjs, strings.Replace(node.Key, "/prjs/", "", -1))
 	}
 	ret.Data = prjs
 OVER:
@@ -63,16 +61,13 @@ func CreateConf(w http.ResponseWriter, r *http.Request) {
 		prjName := strings.TrimSpace(r.PostFormValue("prjName"))
 		key := strings.TrimSpace(r.PostFormValue("key"))
 		value := strings.TrimSpace(r.PostFormValue("value"))
-		if env == "" || prjName == "" || key == "" || value == "" {
-			ret.Code = utils.ErrParam
-			ret.Msg = "params error"
+		if utils.CheckParamsErr(&ret, env, prjName, key, value) {
 			goto OVER
 		}
 		_, err := goclient.Set("/"+prjName+"/"+env+"/"+key, value, nil)
 		utils.CheckErr(err, &ret)
 	} else {
-		ret.Code = utils.ErrMethod
-		ret.Msg = "request method error"
+		utils.SetMethodErr(&ret)
 	}
 OVER:
 	utils.Output(w, ret)
@@ -99,8 +94,7 @@ func CreateBatchConf(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	} else {
-		ret.Code = utils.ErrMethod
-		ret.Msg = "request method error"
+		utils.SetMethodErr(&ret)
 	}
 OVER:
 	utils.Output(w, ret)

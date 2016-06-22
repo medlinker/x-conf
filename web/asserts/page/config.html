@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>
+        x-conf
+    </title>
+    <link href="http://cdn.bootcss.com/semantic-ui/2.1.8/semantic.min.css" rel="stylesheet">
+
+</head>
+
+<body>
+    <div class="ui blue inverted menu">
+        <a class="active item">X-Conf</a>
+        <div class="right menu">
+            <button class="ui blue button createPrj">创建项目</button>
+            <a class="ui item">Logout </a>
+        </div>
+    </div>
+
+    <div class="ui grid">
+        <div class="three wide column">
+            <select class="ui dropdown" id="prjs">
+                <option value="">选择配置项目</option>
+            </select>
+            <div class="ui blue vertical pointing menu">
+              <a class="active item">Prod </a>
+              <a class="item">QA </a>
+              <a class="item">Dev </a>
+              <a class="item">Local </a>
+            </div>
+        </div>
+        <div class="thirteen wide column">
+            <button class="ui blue button">Upload </button>
+            <button class="ui blue button">Download </button>
+            <button class="ui blue button">Configure </button>
+            <table class="ui celled striped table">
+                <thead>
+                    <th>Key</th>
+                    <th>Value</th>
+                    <th>操作</th>
+                </thead>
+            <tbody>
+                <tr>
+                    <td>node_modules </td>
+                    <td>Initial commit</td>
+                    <td class="right aligned">10 hours ago</td>
+                </tr>
+                <tr>
+                    <td>node_modules </td>
+                    <td>Initial commit</td>
+                    <td class="right aligned">10 hours ago</td>
+                </tr>
+                <tr>
+                    <td>node_modules </td>
+                    <td>Initial commit</td>
+                    <td class="right aligned">10 hours ago</td>
+                </tr>
+                <tr>
+                    <td>node_modules </td>
+                    <td>Initial commit</td>
+                    <td class="right aligned">10 hours ago</td>
+                </tr>
+                <tr>
+                    <td>node_modules </td>
+                    <td>Initial commit</td>
+                    <td class="right aligned">10 hours ago</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="ui small modal">
+        <div class="header">创建项目</div>
+        <div class="content">
+            <form class="ui form">
+                <div class="field">
+                    <label>项目</label>
+                    <input type="text" name="prjName" placeholder="项目名称" id="inputPrjName">
+                </div>
+                <button class="ui blue button creatingPrj" type="button">创建</button>
+            </form>
+        </div>
+    </div>
+    <script src="http://cdn.bootcss.com/jquery/3.0.0/jquery.min.js"></script>
+    <script src="http://cdn.bootcss.com/semantic-ui/2.1.8/semantic.min.js"></script>
+    <script src="../js/config.js"></script>
+</body>
+
+</html>

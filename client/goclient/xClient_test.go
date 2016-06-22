@@ -14,7 +14,7 @@ func TestOpt(t *testing.T) {
 	}
 	t.Log(resp)
 
-	resp, err = Get("/test2", &client.GetOptions{Recursive: true})
+	resp, err = Get("/prjs", &client.GetOptions{Recursive: true})
 	if err != nil {
 		t.Fatal(err)
 	}
