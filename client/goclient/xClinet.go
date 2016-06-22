@@ -19,8 +19,10 @@ var (
 )
 
 func init() {
-	iniConfPath := *flag.String("conf", "./x-conf.conf", "x-conf client config file path")
-	iniConf := libconfig.NewIniConfig(iniConfPath)
+	iniConfPath := flag.String("conf", "./x-conf.conf", "x-conf client config file path")
+	flag.Parse()
+
+	iniConf := libconfig.NewIniConfig(*iniConfPath)
 	isWeb = iniConf.GetBool("web", false)
 	if isWeb {
 		prjName := iniConf.GetString("prjName", "prjName")
@@ -55,29 +57,40 @@ func Get(key string, opts *client.GetOptions) (*client.Response, error) {
 // Set assigns a new value to a Node identified by a given key. The caller
 // may define a set of conditions in the SetOptions. If SetOptions.Dir=true
 // then value is ignored.
-func Set(ctx context.Context, key, value string, opts *client.SetOptions) (*client.Response, error) {
+func Set(key, value string, opts *client.SetOptions) (*client.Response, error) {
 	return api.Set(context.Background(), prePath+key, value, opts)
 }
 
 // Delete removes a Node identified by the given key, optionally destroying
 // all of its children as well. The caller may define a set of required
 // conditions in an DeleteOptions object.
-func Delete(ctx context.Context, key string, opts *client.DeleteOptions) (*client.Response, error) {
+func Delete(key string, opts *client.DeleteOptions) (*client.Response, error) {
 	return api.Delete(context.Background(), key, opts)
 }
 
 // Create is an alias for Set w/ PrevExist=false
-func Create(ctx context.Context, key, value string) (*client.Response, error) {
+func Create(key, value string) (*client.Response, error) {
 	return api.Create(context.Background(), prePath+key, value)
 }
 
 // CreateInOrder is used to atomically create in-order keys within the given directory.
-func CreateInOrder(ctx context.Context, dir, value string, opts *client.CreateInOrderOptions) (*client.Response, error) {
+func CreateInOrder(dir, value string, opts *client.CreateInOrderOptions) (*client.Response, error) {
 	return api.CreateInOrder(context.Background(), prePath+dir, value, opts)
 }
 
+// CreateDir is used to atomically create in-order keys within the given directory.
+func CreateDir(dir string) error {
+	key := dir + "/1"
+	_, err := api.Create(context.Background(), key, "1")
+	if err != nil {
+		return err
+	}
+	_, err = Delete(key, nil)
+	return err
+}
+
 // Update is an alias for Set w/ PrevExist=true
-func Update(ctx context.Context, key, value string) (*client.Response, error) {
+func Update(key, value string) (*client.Response, error) {
 	return api.Update(context.Background(), prePath+key, value)
 }
 
