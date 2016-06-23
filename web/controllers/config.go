@@ -3,6 +3,7 @@ package controllers
 import (
 	"net/http"
 	"strings"
+	"text/template"
 	"x-conf/client/goclient"
 	"x-conf/web/utils"
 
@@ -10,9 +11,16 @@ import (
 	"github.com/sosop/libconfig"
 )
 
+// ConfigPage 配置页
+func ConfigPage(w http.ResponseWriter, r *http.Request) {
+	validSess(w, r)
+	t, _ := template.ParseFiles("views/config.html")
+	t.Execute(w, nil)
+}
+
 // CreatePrj project 创建
 func CreatePrj(w http.ResponseWriter, r *http.Request) {
-	utils.Header(w)
+	validSess(w, r)
 	ret := utils.NewRet()
 	if r.Method == "POST" {
 		prjName := strings.TrimSpace(r.PostFormValue("prjName"))
@@ -36,7 +44,7 @@ OVER:
 
 // PrjList 项目列表
 func PrjList(w http.ResponseWriter, r *http.Request) {
-	utils.Header(w)
+	validSess(w, r)
 	ret := utils.NewRet()
 	resp, err := goclient.Get("/prjs", &client.GetOptions{Recursive: true})
 	prjs := make([]string, 0, 64)
@@ -53,7 +61,7 @@ OVER:
 
 // CreateConf 创建配置
 func CreateConf(w http.ResponseWriter, r *http.Request) {
-	utils.Header(w)
+	validSess(w, r)
 	ret := utils.NewRet()
 	if r.Method == "POST" {
 		r.ParseForm()
@@ -75,7 +83,7 @@ OVER:
 
 // CreateBatchConf 批量创建配置
 func CreateBatchConf(w http.ResponseWriter, r *http.Request) {
-	utils.Header(w)
+	validSess(w, r)
 	ret := utils.NewRet()
 	if r.Method == "POST" {
 		r.ParseMultipartForm(32 << 20)
@@ -98,4 +106,13 @@ func CreateBatchConf(w http.ResponseWriter, r *http.Request) {
 	}
 OVER:
 	utils.Output(w, ret)
+}
+
+func validSess(w http.ResponseWriter, r *http.Request) {
+	valid, sess := utils.CheckSessFromCookie(r)
+	if !valid {
+		http.Redirect(w, r, "/login", http.StatusMovedPermanently)
+		return
+	}
+	sess.Update()
 }

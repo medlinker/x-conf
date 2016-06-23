@@ -1,10 +1,11 @@
 $(function() {
+    /*
     $(".submit").click(function() {
         let name = $.trim($("#name").val());
         let pass = $.trim($("#pass").val());
         if (name == "" || pass == "") {
             alert("username and password required!");
-            return;
+            return false;
         }
         $.post(
             "http://127.0.0.1:8000/x/conf/login",
@@ -14,9 +15,20 @@ $(function() {
                     alert(d.msg);
                     return;
                 }
-                self.location='config.html'; 
+                self.location='config.html';
             },
             "json"
         );
     });
+    */
 })
+
+function check() {
+    let name = $.trim($("#name").val());
+    let pass = $.trim($("#pass").val());
+    if (name == "" || pass == "") {
+        alert("username and password required!");
+        return false;
+    }
+    return true
+}

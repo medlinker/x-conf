@@ -2,8 +2,8 @@ package models
 
 import (
 	"crypto/md5"
+	"encoding/json"
 	"fmt"
-
 	"x-conf/client/goclient"
 )
 
@@ -21,9 +21,9 @@ const (
 
 // User model
 type User struct {
-	Name string
-	Pass string
-	Mode
+	Name string `json:"name"`
+	Pass string `json:"-"`
+	Mode `json:"mode"`
 }
 
 // IsSuper 判断用户是否是超级管理员
@@ -53,4 +53,9 @@ func (u User) ValidPass() bool {
 
 func makeKey(key string) string {
 	return fmt.Sprint(prefix, "/", key)
+}
+
+func (u User) String() string {
+	jsonStr, _ := json.Marshal(u)
+	return string(jsonStr)
 }

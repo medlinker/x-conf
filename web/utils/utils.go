@@ -5,13 +5,15 @@ import (
 	"net/http"
 )
 
-// Header return json
-func Header(w http.ResponseWriter) {
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, HEAD")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Max-Age", "1728000")
-	w.Header().Set("Content-type", "application/json")
+// Filter 拦截器
+func Filter(w http.ResponseWriter, r *http.Request) {
+	/*
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, HEAD")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Max-Age", "1728000")
+		w.Header().Set("Content-type", "application/json")
+	*/
 }
 
 // Ret 返回json
@@ -62,8 +64,10 @@ func SetMethodErr(ret *Ret) {
 func CheckParamsErr(ret *Ret, params ...string) bool {
 	for _, p := range params {
 		if p == "" {
-			ret.Code = ErrParam
-			ret.Msg = "params error"
+			if ret != nil {
+				ret.Code = ErrParam
+				ret.Msg = "params error"
+			}
 			return true
 		}
 	}
@@ -74,4 +78,13 @@ func CheckParamsErr(ret *Ret, params ...string) bool {
 func Output(w http.ResponseWriter, ret Ret) {
 	d, _ := json.Marshal(ret)
 	w.Write(d)
+}
+
+// CheckSessFromCookie cookie中检测session
+func CheckSessFromCookie(r *http.Request) (bool, *Session) {
+	c, err := r.Cookie("SESSIONID")
+	if err != nil || !CheckSess(c.Value) {
+		return false, nil
+	}
+	return true, SessMap[c.Value]
 }
