@@ -2,7 +2,6 @@ package goclient
 
 import (
 	"flag"
-	"fmt"
 	"strings"
 	"time"
 
@@ -16,6 +15,7 @@ var (
 	api     client.KeysAPI
 	prePath string
 	isWeb   bool
+	entry   = make(map[string]string, 128)
 )
 
 func init() {
@@ -24,14 +24,17 @@ func init() {
 
 	iniConf := libconfig.NewIniConfig(*iniConfPath)
 	isWeb = iniConf.GetBool("web", false)
-	if isWeb {
+	if !isWeb {
 		prjName := iniConf.GetString("prjName", "prjName")
 		env := iniConf.GetString("env", "prod")
-		prePath = fmt.Sprint("/", env, "/", prjName)
+		prePath = MakeKey(prjName, env) + "/"
 	}
 	clientUrlsStr := iniConf.GetString("etcd_clinet_urls", "http://127.0.0.1:2379")
 	clientUrls := strings.Split(clientUrlsStr, ",")
 	newKeysAPI(clientUrls)
+	if err := pullAll(); err != nil {
+		panic(err)
+	}
 }
 
 // newnewKeysApi 创建keyapi
@@ -65,7 +68,7 @@ func Set(key, value string, opts *client.SetOptions) (*client.Response, error) {
 // all of its children as well. The caller may define a set of required
 // conditions in an DeleteOptions object.
 func Delete(key string, opts *client.DeleteOptions) (*client.Response, error) {
-	return api.Delete(context.Background(), key, opts)
+	return api.Delete(context.Background(), prePath+key, opts)
 }
 
 // Create is an alias for Set w/ PrevExist=false
@@ -80,7 +83,7 @@ func CreateInOrder(dir, value string, opts *client.CreateInOrderOptions) (*clien
 
 // CreateDir is used to atomically create in-order keys within the given directory.
 func CreateDir(dir string) error {
-	key := dir + "/1"
+	key := prePath + dir + "/1"
 	_, err := api.Create(context.Background(), key, "1")
 	if err != nil {
 		return err
@@ -100,4 +103,56 @@ func Update(key, value string) (*client.Response, error) {
 // to emit events that happen to a Node, and optionally to its children.
 func Watcher(key string, opts *client.WatcherOptions) client.Watcher {
 	return api.Watcher(prePath+key, opts)
+}
+
+// Watching 监听节点变化
+func Watching(f func()) {
+	go watching(f, "/publish"+prePath)
+}
+
+// WatchingShare 监听共享节点节点变化
+func WatchingShare(f func()) {
+	go watching(f, "/share")
+}
+
+func watching(f func(), path string) {
+	for {
+		resp, err := api.Watcher(path, &client.WatcherOptions{Recursive: true}).Next(context.Background())
+		if err != nil {
+			time.Sleep(time.Millisecond * 100)
+			continue
+		}
+		if strings.ToLower(resp.Action) == "update" {
+			pullAll()
+			f()
+		}
+	}
+}
+
+func pullAll() error {
+	resp, err := Get("", &client.GetOptions{Recursive: true})
+	if err != nil {
+		return err
+	}
+	for _, node := range resp.Node.Nodes {
+		entry[strings.Replace(node.Key, prePath, "", -1)] = node.Value
+	}
+	return nil
+}
+
+// GetLM 本地内存获取获取
+func GetLM(key string) string {
+	if v, ok := entry[key]; ok {
+		return v
+	}
+	return ""
+}
+
+// MakeKey 生成key
+func MakeKey(levels ...string) string {
+	key := ""
+	for _, l := range levels {
+		key += "/" + l
+	}
+	return key
 }

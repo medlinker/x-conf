@@ -35,9 +35,9 @@ func CreatePrj(w http.ResponseWriter, r *http.Request) {
 			goto OVER
 		}
 		for _, env := range utils.Envs {
-			err = goclient.CreateDir(utils.MakeKey(prjName, env))
+			err = goclient.CreateDir(goclient.MakeKey(prjName, env))
 			utils.CheckErr(err, &ret)
-			goclient.Set(utils.MakeKey("publish", prjName, env), fmt.Sprint(time.Now().UnixNano()), nil)
+			goclient.Set(goclient.MakeKey("publish", prjName, env), fmt.Sprint(time.Now().UnixNano()), nil)
 		}
 	} else {
 		utils.SetMethodErr(&ret)
@@ -73,7 +73,7 @@ func Confs(w http.ResponseWriter, r *http.Request) {
 	env := strings.TrimSpace(r.FormValue("env"))
 	prjName := strings.TrimSpace(r.FormValue("prjName"))
 
-	dir := utils.MakeKey(prjName, env)
+	dir := goclient.MakeKey(prjName, env)
 
 	resp, err := goclient.Get(dir, &client.GetOptions{Recursive: true})
 	confs := make(map[string]string, 128)
@@ -107,7 +107,7 @@ func CreateConf(w http.ResponseWriter, r *http.Request) {
 		if utils.CheckParamsErr(&ret, env, prjName, key, value) {
 			goto OVER
 		}
-		_, err := goclient.Set(utils.MakeKey(prjName, env, key), value, nil)
+		_, err := goclient.Set(goclient.MakeKey(prjName, env, key), value, nil)
 		utils.CheckErr(err, &ret)
 	} else {
 		utils.SetMethodErr(&ret)
@@ -135,7 +135,7 @@ func CreateBatchConf(w http.ResponseWriter, r *http.Request) {
 		prjName := strings.TrimSpace(r.FormValue("prjName"))
 		iniConf := libconfig.NewIniConfigAsReader(file)
 		for k, v := range iniConf.Entry {
-			goclient.Set(utils.MakeKey(prjName, env, k), v.(string), nil)
+			goclient.Set(goclient.MakeKey(prjName, env, k), v.(string), nil)
 		}
 		t, _ := template.ParseFiles("views/config.html")
 		t.Execute(w, nil)
@@ -149,7 +149,7 @@ func DownloadConfs(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	env := strings.TrimSpace(r.FormValue("env"))
 	prjName := strings.TrimSpace(r.FormValue("prjName"))
-	key := utils.MakeKey(prjName, env)
+	key := goclient.MakeKey(prjName, env)
 	resp, _ := goclient.Get(key, &client.GetOptions{Recursive: true})
 	data := ""
 	for _, node := range resp.Node.Nodes {
@@ -170,7 +170,7 @@ func DeleteConf(w http.ResponseWriter, r *http.Request) {
 	if utils.CheckParamsErr(&ret, env, prjName, key) {
 		goto OVER
 	}
-	goclient.Delete(utils.MakeKey(prjName, env, key), nil)
+	goclient.Delete(goclient.MakeKey(prjName, env, key), nil)
 OVER:
 	utils.Output(w, ret)
 }
@@ -185,7 +185,7 @@ func Publish(w http.ResponseWriter, r *http.Request) {
 	if utils.CheckParamsErr(&ret, env, prjName) {
 		goto OVER
 	}
-	goclient.Update(utils.MakeKey("publish", prjName, env), fmt.Sprint(time.Now().UnixNano()))
+	goclient.Update(goclient.MakeKey("publish", prjName, env), fmt.Sprint(time.Now().UnixNano()))
 OVER:
 	utils.Output(w, ret)
 }

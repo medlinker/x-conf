@@ -95,12 +95,3 @@ func CheckSessFromCookie(r *http.Request) (bool, *Session) {
 	}
 	return true, SessMap[c.Value]
 }
-
-// MakeKey 生成key
-func MakeKey(levels ...string) string {
-	key := ""
-	for _, l := range levels {
-		key += "/" + l
-	}
-	return key
-}
