@@ -16,6 +16,11 @@ func Filter(w http.ResponseWriter, r *http.Request) {
 	*/
 }
 
+// Header 设置返回header
+func Header(w http.ResponseWriter) {
+	w.Header().Set("Content-type", "application/json")
+}
+
 // Ret 返回json
 type Ret struct {
 	Code int         `json:"code"`
@@ -47,8 +52,10 @@ var (
 // CheckErr 检查异常
 func CheckErr(err error, ret *Ret) bool {
 	if err != nil {
-		ret.Code = ErrServer
-		ret.Msg = err.Error()
+		if ret != nil {
+			ret.Code = ErrServer
+			ret.Msg = err.Error()
+		}
 		return true
 	}
 	return false
@@ -87,4 +94,13 @@ func CheckSessFromCookie(r *http.Request) (bool, *Session) {
 		return false, nil
 	}
 	return true, SessMap[c.Value]
+}
+
+// MakeKey 生成key
+func MakeKey(levels ...string) string {
+	key := ""
+	for _, l := range levels {
+		key += "/" + l
+	}
+	return key
 }

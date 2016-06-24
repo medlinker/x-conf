@@ -22,7 +22,7 @@
     <div class="ui grid">
         <div class="three wide column">
             <select class="ui dropdown" id="prjs">
-                <option value="">选择配置项目</option>
+                <option value="">select projects</option>
             </select>
             <div class="ui blue vertical pointing menu envMenu">
               <a class="item">Prod </a>
@@ -33,40 +33,17 @@
         </div>
         <div class="thirteen wide column">
             <button class="ui blue button upload">Upload </button>
-            <button class="ui blue button download">Download </button>
+            <a class="ui blue button download" href="#">Download </a>
             <button class="ui blue button configure">Configure </button>
+            <button class="ui blue button publish">Publish </button>
             <table class="ui celled striped table">
                 <thead>
                     <th>Key</th>
                     <th>Value</th>
-                    <th>操作</th>
+                    <th>Operation</th>
                 </thead>
-            <tbody>
-                <tr>
-                    <td>node_modules </td>
-                    <td>Initial commit</td>
-                    <td class="right aligned">10 hours ago</td>
-                </tr>
-                <tr>
-                    <td>node_modules </td>
-                    <td>Initial commit</td>
-                    <td class="right aligned">10 hours ago</td>
-                </tr>
-                <tr>
-                    <td>node_modules </td>
-                    <td>Initial commit</td>
-                    <td class="right aligned">10 hours ago</td>
-                </tr>
-                <tr>
-                    <td>node_modules </td>
-                    <td>Initial commit</td>
-                    <td class="right aligned">10 hours ago</td>
-                </tr>
-                <tr>
-                    <td>node_modules </td>
-                    <td>Initial commit</td>
-                    <td class="right aligned">10 hours ago</td>
-                </tr>
+                <tbody class="confList">
+
                 </tbody>
             </table>
         </div>
@@ -97,6 +74,20 @@
                     <input type="text" name="value" placeholder="value" id="inputValue">
                 </div>
                 <button class="ui blue button createConf" type="button">配置</button>
+            </form>
+        </div>
+    </div>
+    <div class="ui small modal uploadM">
+        <div class="header">上传配置文件</div>
+        <div class="content">
+            <form class="ui form" action="/x/conf/configures" method="POST" enctype="multipart/form-data" onsubmit="return notEmpty('inputFile')">
+                <div class="field">
+                    <label>File</label>
+                    <input type="hidden" name="prjName" id="inputUpPrj">
+                    <input type="hidden" name="env" id="inputUpEnv">
+                    <input type="file" name="confsFile" placeholder="file" id="inputFile">
+                </div>
+                <input class="ui blue button" type="submit" value="Upload">
             </form>
         </div>
     </div>
