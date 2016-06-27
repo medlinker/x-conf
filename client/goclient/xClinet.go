@@ -20,6 +20,8 @@ import (
 var (
 	api     client.KeysAPI
 	prePath string
+	prjName string
+	env     string
 	isWeb   bool
 	entry   = make(map[string]string, 128)
 	iniConf *libconfig.IniConfig
@@ -37,8 +39,8 @@ func init() {
 	newKeysAPI(clientUrls)
 
 	if !isWeb {
-		prjName := iniConf.GetString("prjName", "prjName")
-		env := iniConf.GetString("env", "prod")
+		prjName = iniConf.GetString("prjName", "prjName")
+		env = iniConf.GetString("env", "prod")
 		prePath = MakeKey(prjName, env) + "/"
 
 		err := pullAll()
@@ -145,7 +147,7 @@ func Watching(f func()) {
 
 // WatchingShare 监听共享节点节点变化
 func WatchingShare(f func()) {
-	go watching(f, "/share")
+	go watching(f, "/publish/share/"+env)
 }
 
 func watching(f func(), path string) {
@@ -153,6 +155,7 @@ func watching(f func(), path string) {
 		resp, err := api.Watcher(path, &client.WatcherOptions{Recursive: true}).Next(context.Background())
 		if err != nil {
 			time.Sleep(time.Millisecond * 100)
+			log.Println(err)
 			continue
 		}
 		if strings.ToLower(resp.Action) == "update" {
@@ -170,7 +173,14 @@ func watching(f func(), path string) {
 }
 
 func pullAll() error {
-	resp, err := Get("", &client.GetOptions{Recursive: true})
+	resp, err := api.Get(context.Background(), MakeKey("share", env), &client.GetOptions{Recursive: true})
+	if err != nil {
+		return err
+	}
+	for _, node := range resp.Node.Nodes {
+		entry[strings.Replace(node.Key, "/share/"+env+"/", "", -1)] = node.Value
+	}
+	resp, err = Get("", &client.GetOptions{Recursive: true})
 	if err != nil {
 		return err
 	}

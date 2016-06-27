@@ -27,7 +27,11 @@ func TestOpt(t *testing.T) {
 	}
 
 	Watching(func() {
-		fmt.Println(GetLM("redis.host"))
+		fmt.Println(entry)
+	})
+
+	WatchingShare(func() {
+		fmt.Println(entry)
 	})
 
 	ch := make(chan int, 1)
