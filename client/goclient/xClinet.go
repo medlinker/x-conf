@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"regexp"
 	"strings"
 	"time"
 
@@ -12,6 +13,8 @@ import (
 	"io/ioutil"
 
 	"os"
+
+	"net"
 
 	"github.com/sosop/libconfig"
 	"golang.org/x/net/context"
@@ -56,6 +59,8 @@ func init() {
 		} else {
 			Dump()
 		}
+		info := getLocalInfo()
+		go heart(info)
 	}
 }
 
@@ -206,6 +211,41 @@ func fileIsExist(path string) bool {
 		return false
 	}
 	return true
+}
+
+func getLocalInfo() string {
+	hostname, err := os.Hostname()
+	if err != nil {
+		hostname = ""
+		log.Println(err)
+	}
+	hostname += iniConf.GetString("instanceName", "instance")
+	addrs, err := net.InterfaceAddrs()
+	if err != nil {
+		log.Println(err)
+		return hostname
+	}
+	for _, addr := range addrs {
+		ok, err := regexp.Match(`^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)`, []byte(addr.String()))
+		if err == nil && ok && !strings.HasPrefix(addr.String(), "127.0.0.1") {
+			ip := strings.Split(addr.String(), "/")[0]
+			return fmt.Sprint(hostname, "-", ip)
+		}
+	}
+	return hostname
+}
+
+func heart(info string) {
+	for {
+		select {
+		case <-time.Tick(time.Second * 5):
+			_, err := api.Set(context.Background(), MakeKey("heartbeat", prjName, env, info), "1", &client.SetOptions{TTL: time.Second * 5})
+			if err != nil {
+				log.Println(err)
+				time.Sleep(time.Microsecond * 10)
+			}
+		}
+	}
 }
 
 // GetLM 本地内存获取获取

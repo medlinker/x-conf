@@ -1,3 +1,4 @@
+instanceName=test1
 prjName=app1
 env=prod
 etcd_clinet_urls=http://127.0.0.1:2379
