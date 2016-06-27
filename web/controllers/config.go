@@ -135,7 +135,7 @@ func CreateBatchConf(w http.ResponseWriter, r *http.Request) {
 		prjName := strings.TrimSpace(r.FormValue("prjName"))
 		iniConf := libconfig.NewIniConfigAsReader(file)
 		for k, v := range iniConf.Entry {
-			goclient.Set(goclient.MakeKey(prjName, env, k), v.(string), nil)
+			goclient.Set(goclient.MakeKey(prjName, env, k), v, nil)
 		}
 		t, _ := template.ParseFiles("views/config.html")
 		t.Execute(w, nil)

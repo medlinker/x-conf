@@ -22,7 +22,7 @@ func TestOpt(t *testing.T) {
 		}
 	*/
 
-	if GetLM("redis.host") != "" {
+	if GetLM("redis.host") == "" {
 		t.Fatal("Get key from local memory error!")
 	}
 
@@ -30,6 +30,6 @@ func TestOpt(t *testing.T) {
 		fmt.Println(GetLM("redis.host"))
 	})
 
-	// ch := make(chan int, 1)
-	// <-ch
+	ch := make(chan int, 1)
+	<-ch
 }

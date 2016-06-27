@@ -2,10 +2,16 @@ package goclient
 
 import (
 	"flag"
+	"fmt"
+	"log"
 	"strings"
 	"time"
 
 	"github.com/coreos/etcd/client"
+
+	"io/ioutil"
+
+	"os"
 
 	"github.com/sosop/libconfig"
 	"golang.org/x/net/context"
@@ -16,24 +22,38 @@ var (
 	prePath string
 	isWeb   bool
 	entry   = make(map[string]string, 128)
+	iniConf *libconfig.IniConfig
 )
 
 func init() {
 	iniConfPath := flag.String("conf", "./x-conf.conf", "x-conf client config file path")
 	flag.Parse()
 
-	iniConf := libconfig.NewIniConfig(*iniConfPath)
+	iniConf = libconfig.NewIniConfig(*iniConfPath)
 	isWeb = iniConf.GetBool("web", false)
+
+	clientUrlsStr := iniConf.GetString("etcd_clinet_urls", "http://127.0.0.1:2379")
+	clientUrls := strings.Split(clientUrlsStr, ",")
+	newKeysAPI(clientUrls)
+
 	if !isWeb {
 		prjName := iniConf.GetString("prjName", "prjName")
 		env := iniConf.GetString("env", "prod")
 		prePath = MakeKey(prjName, env) + "/"
-	}
-	clientUrlsStr := iniConf.GetString("etcd_clinet_urls", "http://127.0.0.1:2379")
-	clientUrls := strings.Split(clientUrlsStr, ",")
-	newKeysAPI(clientUrls)
-	if err := pullAll(); err != nil {
-		panic(err)
+
+		err := pullAll()
+		for i := 0; i < 3 && err != nil; i++ {
+			log.Println(err)
+			time.Sleep(time.Second)
+			err = pullAll()
+		}
+		if err != nil {
+			if err = readFromDump(); err != nil {
+				panic(err)
+			}
+		} else {
+			Dump()
+		}
 	}
 }
 
@@ -47,7 +67,7 @@ func newKeysAPI(clientUrls []string) {
 	}
 	c, err := client.New(cfg)
 	if err != nil {
-		panic(err)
+
 	}
 	api = client.NewKeysAPI(c)
 }
@@ -105,6 +125,19 @@ func Watcher(key string, opts *client.WatcherOptions) client.Watcher {
 	return api.Watcher(prePath+key, opts)
 }
 
+// Dump 持久化本地
+func Dump() error {
+	confs := ""
+	for k, v := range entry {
+		confs += fmt.Sprintln(k, "=", v)
+	}
+	err := ioutil.WriteFile(iniConf.GetString("dunpPath", "confs.dump"), []byte(confs), 0666)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // Watching 监听节点变化
 func Watching(f func()) {
 	go watching(f, "/publish"+prePath)
@@ -123,7 +156,14 @@ func watching(f func(), path string) {
 			continue
 		}
 		if strings.ToLower(resp.Action) == "update" {
-			pullAll()
+			err = pullAll()
+			if err != nil {
+				log.Println(err)
+			}
+			err = Dump()
+			if err != nil {
+				log.Println(err)
+			}
 			f()
 		}
 	}
@@ -138,6 +178,24 @@ func pullAll() error {
 		entry[strings.Replace(node.Key, prePath, "", -1)] = node.Value
 	}
 	return nil
+}
+
+func readFromDump() error {
+	filename := iniConf.GetString("dunpPath", "confs.dump")
+	if fileIsExist(filename) {
+		entry = libconfig.NewIniConfig(filename).Entry
+	} else {
+		log.Println(filename, "is not exist!")
+	}
+	return nil
+}
+
+func fileIsExist(path string) bool {
+	_, err := os.Stat(path)
+	if err != nil && os.IsNotExist(err) {
+		return false
+	}
+	return true
 }
 
 // GetLM 本地内存获取获取
