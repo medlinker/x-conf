@@ -219,7 +219,7 @@ func getLocalInfo() string {
 		hostname = ""
 		log.Println(err)
 	}
-	hostname += iniConf.GetString("instanceName", "instance")
+	hostname = iniConf.GetString("instanceName", "instance") + "-" + hostname
 	addrs, err := net.InterfaceAddrs()
 	if err != nil {
 		log.Println(err)

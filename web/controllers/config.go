@@ -22,8 +22,8 @@ func ConfigPage(w http.ResponseWriter, r *http.Request) {
 
 // CreatePrj project 创建
 func CreatePrj(w http.ResponseWriter, r *http.Request) {
-	utils.Header(w)
 	validSess(w, r)
+	utils.Header(w)
 	ret := utils.NewRet()
 	if r.Method == "POST" {
 		prjName := strings.TrimSpace(r.PostFormValue("prjName"))
@@ -48,8 +48,8 @@ OVER:
 
 // PrjList 项目列表
 func PrjList(w http.ResponseWriter, r *http.Request) {
-	utils.Header(w)
 	validSess(w, r)
+	utils.Header(w)
 	ret := utils.NewRet()
 	resp, err := goclient.Get("/prjs", &client.GetOptions{Recursive: true})
 	prjs := make([]string, 0, 64)
@@ -66,8 +66,8 @@ OVER:
 
 // Confs 获取配置
 func Confs(w http.ResponseWriter, r *http.Request) {
-	utils.Header(w)
 	validSess(w, r)
+	utils.Header(w)
 	ret := utils.NewRet()
 
 	env := strings.TrimSpace(r.FormValue("env"))
@@ -95,8 +95,8 @@ OVER:
 
 // CreateConf 创建配置
 func CreateConf(w http.ResponseWriter, r *http.Request) {
-	utils.Header(w)
 	validSess(w, r)
+	utils.Header(w)
 	ret := utils.NewRet()
 	if r.Method == "POST" {
 		r.ParseForm()
@@ -161,8 +161,8 @@ func DownloadConfs(w http.ResponseWriter, r *http.Request) {
 
 // DeleteConf 删除配置
 func DeleteConf(w http.ResponseWriter, r *http.Request) {
-	utils.Header(w)
 	validSess(w, r)
+	utils.Header(w)
 	ret := utils.NewRet()
 	env := strings.TrimSpace(r.PostFormValue("env"))
 	prjName := strings.TrimSpace(r.PostFormValue("prjName"))
@@ -177,8 +177,8 @@ OVER:
 
 // Publish 发布配置
 func Publish(w http.ResponseWriter, r *http.Request) {
-	utils.Header(w)
 	validSess(w, r)
+	utils.Header(w)
 	ret := utils.NewRet()
 	env := strings.TrimSpace(r.PostFormValue("env"))
 	prjName := strings.TrimSpace(r.PostFormValue("prjName"))
@@ -186,6 +186,30 @@ func Publish(w http.ResponseWriter, r *http.Request) {
 		goto OVER
 	}
 	goclient.Update(goclient.MakeKey("publish", prjName, env), fmt.Sprint(time.Now().UnixNano()))
+OVER:
+	utils.Output(w, ret)
+}
+
+// HeartCheck 心跳检测
+func HeartCheck(w http.ResponseWriter, r *http.Request) {
+	validSess(w, r)
+	utils.Header(w)
+	ret := utils.NewRet()
+	env := strings.TrimSpace(r.PostFormValue("env"))
+	prjName := strings.TrimSpace(r.PostFormValue("prjName"))
+	instance := make([]string, 0, 64)
+	key := goclient.MakeKey("heartbeat", prjName, env)
+	resp, err := goclient.Get(key, &client.GetOptions{Recursive: true})
+	if utils.CheckParamsErr(&ret, env, prjName) {
+		goto OVER
+	}
+	if utils.CheckErr(err, &ret) {
+		goto OVER
+	}
+	for _, node := range resp.Node.Nodes {
+		instance = append(instance, strings.Replace(node.Key, key+"/", "", -1))
+	}
+	ret.Data = instance
 OVER:
 	utils.Output(w, ret)
 }

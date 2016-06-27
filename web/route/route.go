@@ -20,4 +20,5 @@ func init() {
 	http.HandleFunc("/x/conf/download", controllers.DownloadConfs)
 	http.HandleFunc("/x/conf/del", controllers.DeleteConf)
 	http.HandleFunc("/x/conf/publish", controllers.Publish)
+	http.HandleFunc("/x/conf/heartbeat", controllers.HeartCheck)
 }

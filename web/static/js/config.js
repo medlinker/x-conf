@@ -121,6 +121,31 @@ $(function() {
             "json"
         );
     });
+    $(".heartCheck").click(function() {
+        let prj = $("#prjs").val();
+        let env = $.trim($('.envMenu > a[class="item active"]').text()).toLowerCase();
+        if (prj == "" || env == "") {
+            alert("chose prj and env");
+            return;
+        }
+        $.post(
+            "/x/conf/heartbeat",
+            {env: env, prjName: prj},
+            function(d) {
+                if (d.code != 0) {
+                    alert(d.msg);
+                    return;
+                }
+                $(".heart-instance").empty();
+                for (i in d.data) {
+                    $(".heart-instance").append(`<tr><td>`+ d.data[i]
+                        +`</td><td><i class="large green checkmark icon"></i></td></tr>`)
+                }
+                $('.ui.small.modal.heart').modal('show');
+            },
+            "json"
+        );
+    });
 })
 
 function setPrjs() {
