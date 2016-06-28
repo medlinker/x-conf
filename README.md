@@ -1,6 +1,8 @@
 # x-conf
 介绍：x-conf是一个基于etcd分布式配置平台，由3部分组成，client(支持多语言)、web(添加、更新、发布配置，也可实现服务监听功能)
 ![web1](./x-main.png)
+![web2](./x-main-desc.png)
+![web3](./x-check.png)
 
 ## Task
 * 支持多环境（prod dev qa local）、多项目、多语言（注：目前以支持golang和java，近期完成ruby和pytho）
