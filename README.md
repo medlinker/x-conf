@@ -8,7 +8,7 @@
 ![arch](./x-arch.png)
 
 ## Task
-* 支持多环境（prod dev qa local）、多项目、多语言（注：目前以支持golang和java，近期完成ruby和pytho）
+* 支持多环境（prod dev qa local）、多项目、多语言（注：目前以支持golang和java，近期完成ruby和python）
 * 区分普通用户和管理员，普通用户只能操作（查看、更新、删除）dev,qa,local环境的配置，管理员可以操作所有环境的配置。(注：目前web只有一个admin用户，马上完成用户管理)
 * 详细的操作日志记录，便于回放每个用户的每个操作
 * 持久化配置，预防宕机（注：依靠etcd的持久化功能，不用依靠数据库等持久化，简化配置和运维）
@@ -19,9 +19,9 @@
 ## 安装
 ### 1、安装、配置、启动etcd [请参考](https://github.com/coreos/etcd)
 ### 2、安装web
-#### 1）、直接下载二进制启动服务[unix*下载地址](https://github.com/medlinker/x-conf/releases/download/1.0/x-conf_linux_release_1.0.0)  [mac下载地址](https://github.com/medlinker/x-conf/releases/download/1.0/x-conf_osx_release_1.0.0)
-
-运行：./x-conf_osx_release_1.0.0 -conf x-conf.onf(说明 -conf 指定配置文件路径)
+#### 1）、直接下载二进制启动服务[unix*下载地址](https://github.com/medlinker/x-conf/releases/download/1.0/web-linux.tar.gz)  [mac下载地址](https://github.com/medlinker/x-conf/releases/download/1.0/web-osx.tar.gz)
+解压： tar -zxvf web-osx.tar.gz  
+运行：./x-conf_osx_release_1.0.0 -addr 127.0.0.1:8000 -conf x-conf.onf(说明 -conf 指定配置文件路径)  
 x-conf.conf内容：
  
 ```
@@ -33,8 +33,9 @@ prjName=app1
 env=prod
 # etcd集群地址，逗号分割（必填）
 etcd_clinet_urls=http://127.0.0.1:2379
-# web启动必填，客户端默认false
+# web启动必填2项，客户端web默认false
 web=true
+addr=127.0.0.1:8000
 ```
 
 #### 2）、通过源码编译和运行（required go1.6+）

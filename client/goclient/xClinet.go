@@ -27,23 +27,24 @@ var (
 	env     string
 	isWeb   bool
 	entry   = make(map[string]string, 128)
-	iniConf *libconfig.IniConfig
+	// IniConf 读取配置
+	IniConf *libconfig.IniConfig
 )
 
 func init() {
 	iniConfPath := flag.String("conf", "./x-conf.conf", "x-conf client config file path")
 	flag.Parse()
 
-	iniConf = libconfig.NewIniConfig(*iniConfPath)
-	isWeb = iniConf.GetBool("web", false)
+	IniConf = libconfig.NewIniConfig(*iniConfPath)
+	isWeb = IniConf.GetBool("web", false)
 
-	clientUrlsStr := iniConf.GetString("etcd_clinet_urls", "http://127.0.0.1:2379")
+	clientUrlsStr := IniConf.GetString("etcd_clinet_urls", "http://127.0.0.1:2379")
 	clientUrls := strings.Split(clientUrlsStr, ",")
 	newKeysAPI(clientUrls)
 
 	if !isWeb {
-		prjName = iniConf.GetString("prjName", "prjName")
-		env = iniConf.GetString("env", "prod")
+		prjName = IniConf.GetString("prjName", "prjName")
+		env = IniConf.GetString("env", "prod")
 		prePath = MakeKey(prjName, env) + "/"
 
 		err := pullAll()
@@ -138,7 +139,7 @@ func Dump() error {
 	for k, v := range entry {
 		confs += fmt.Sprintln(k, "=", v)
 	}
-	err := ioutil.WriteFile(iniConf.GetString("dunpPath", "confs.dump"), []byte(confs), 0666)
+	err := ioutil.WriteFile(IniConf.GetString("dunpPath", "confs.dump"), []byte(confs), 0666)
 	if err != nil {
 		return err
 	}
@@ -196,7 +197,7 @@ func pullAll() error {
 }
 
 func readFromDump() error {
-	filename := iniConf.GetString("dunpPath", "confs.dump")
+	filename := IniConf.GetString("dunpPath", "confs.dump")
 	if fileIsExist(filename) {
 		entry = libconfig.NewIniConfig(filename).Entry
 	} else {
@@ -219,7 +220,7 @@ func getLocalInfo() string {
 		hostname = ""
 		log.Println(err)
 	}
-	hostname = iniConf.GetString("instanceName", "instance") + "-" + hostname
+	hostname = IniConf.GetString("instanceName", "instance") + "-" + hostname
 	addrs, err := net.InterfaceAddrs()
 	if err != nil {
 		log.Println(err)

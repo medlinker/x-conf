@@ -21,5 +21,6 @@ func init() {
 }
 
 func main() {
-	http.ListenAndServe(":8000", nil)
+	addr := goclient.IniConf.GetString("addr", ":8000")
+	http.ListenAndServe(addr, nil)
 }
