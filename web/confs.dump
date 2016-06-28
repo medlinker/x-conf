@@ -1,0 +1,5 @@
+mysql.host = 172.168.6.8
+kafka = 88.192.88.88
+redis.host = 192.168.8.8
+callback = http://172.12.22.8
+share = 

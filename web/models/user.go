@@ -43,11 +43,13 @@ func EncrytPass(originPass string) string {
 func (u User) ValidPass() bool {
 	resp, err := goclient.Get(makeKey(u.Name), nil)
 	if err != nil {
+		fmt.Println(err)
 		return false
 	}
 	if EncrytPass(u.Pass) == resp.Node.Value {
 		return true
 	}
+	fmt.Println(2)
 	return false
 }
 
