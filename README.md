@@ -4,6 +4,9 @@
 ![web2](./x-main-desc.png)
 ![web3](./x-check.png)
 
+## 架构图
+![arch](./x-arch.png)
+
 ## Task
 * 支持多环境（prod dev qa local）、多项目、多语言（注：目前以支持golang和java，近期完成ruby和pytho）
 * 区分普通用户和管理员，普通用户只能操作（查看、更新、删除）dev,qa,local环境的配置，管理员可以操作所有环境的配置。(注：目前web只有一个admin用户，马上完成用户管理)
