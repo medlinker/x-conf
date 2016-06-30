@@ -1,7 +1,6 @@
 package goclient
 
 import (
-	"flag"
 	"fmt"
 	"log"
 	"regexp"
@@ -32,10 +31,11 @@ var (
 )
 
 func init() {
-	iniConfPath := flag.String("conf", "./x-conf.conf", "x-conf client config file path")
-	flag.Parse()
+	IniConf = &libconfig.IniConfig{Entry: make(map[string]string, 32)}
+}
 
-	IniConf = libconfig.NewIniConfig(*iniConfPath)
+// Config 初始化设置
+func Config() {
 	isWeb = IniConf.GetBool("web", false)
 
 	clientUrlsStr := IniConf.GetString("etcd_clinet_urls", "http://127.0.0.1:2379")
@@ -63,6 +63,11 @@ func init() {
 		info := getLocalInfo()
 		go heart(info)
 	}
+}
+
+// SetInit 设置初始化
+func SetInit(key, value string) {
+	IniConf.Set(key, value)
 }
 
 // newnewKeysApi 创建keyapi

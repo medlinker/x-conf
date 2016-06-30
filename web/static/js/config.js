@@ -146,6 +146,9 @@ $(function() {
             "json"
         );
     });
+    $(".changePwd").click(function() {
+        $('.ui.small.modal.modifyPwd').modal('show');
+    });
 })
 
 function setPrjs() {

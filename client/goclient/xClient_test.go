@@ -21,6 +21,11 @@ func TestOpt(t *testing.T) {
 			t.Log(node.Key + ": " + node.Value)
 		}
 	*/
+	SetInit("instanceName", "go-test")
+	SetInit("prjName", "app1")
+	SetInit("env", "prod")
+	SetInit("etcd_clinet_urls", "http://127.0.0.1:2379")
+	Config()
 
 	if GetLM("redis.host") == "" {
 		t.Fatal("Get key from local memory error!")

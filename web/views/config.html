@@ -15,6 +15,8 @@
         <a class="active item">X-Conf</a>
         <div class="right menu">
             <button class="ui blue button createPrj">Create Project</button>
+            <button class="ui blue button createUser">Create User</button>
+            <button class="ui blue button changePwd">Change Password</button>
             <a class="ui item" href="/logout">Logout </a>
         </div>
     </div>
@@ -99,6 +101,34 @@
                 <tbody class="heart-instance">
                 </tbody>
             </table>
+        </div>
+    </div>
+    <div class="ui small modal user">
+        <div class="header">创建用户</div>
+        <div class="content">
+            <form class="ui form">
+                <div class="field">
+                    <label>用户名</label>
+                    <input type="text" name="username" placeholder="Username" id="inputUsername">
+                </div>
+                <button class="ui blue button creatingPrj" type="button">创建</button>
+            </form>
+        </div>
+    </div>
+    <div class="ui small modal modifyPwd">
+        <div class="header">修改密码</div>
+        <div class="content">
+            <form class="ui form">
+                <div class="field">
+                    <label>Old Password</label>
+                    <input type="password" name="oldPassword" placeholder="Old Password" id="inputOldPassword">
+                </div>
+                <div class="field">
+                    <label>New Password</label>
+                    <input type="password" name="newPassword" placeholder="New Password" id="inputnEWPassword">
+                </div>
+                <button class="ui blue button modPwd" type="button">修改</button>
+            </form>
         </div>
     </div>
     <script src="http://cdn.bootcss.com/js-cookie/2.1.2/js.cookie.min.js"></script>

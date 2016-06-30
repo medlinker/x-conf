@@ -1,12 +1,17 @@
 package controllers
 
 import (
+	"errors"
 	"net/http"
 	"strings"
 	"text/template"
 	"time"
 	wm "x-conf/web/models"
 	"x-conf/web/utils"
+
+	"github.com/coreos/etcd/client"
+
+	"github.com/medlinker/x-conf/client/goclient"
 )
 
 // Login 用户登陆
@@ -43,4 +48,46 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 	s.Delete()
 	t, _ := template.ParseFiles("views/login.html")
 	t.Execute(w, nil)
+}
+
+// Create 创建用户
+func Create(w http.ResponseWriter, r *http.Request) {
+	validSess(w, r)
+	utils.Header(w)
+	ret := utils.NewRet()
+	if r.Method == "POST" {
+		username := strings.TrimSpace(r.PostFormValue("username"))
+		if utils.CheckParamsErr(&ret, username) {
+			goto OVER
+		}
+		key := goclient.MakeKey("users", username)
+		goclient.Set(key, wm.EncrytPass("123456"), nil)
+	} else {
+		utils.SetMethodErr(&ret)
+	}
+OVER:
+	utils.Output(w, ret)
+}
+
+// Modify 修改密码
+func Modify(w http.ResponseWriter, r *http.Request) {
+	validSess(w, r)
+	utils.Header(w)
+	ret := utils.NewRet()
+	if r.Method == "POST" {
+		oldPassword := strings.TrimSpace(r.PostFormValue("oldPassword"))
+		newPassword := strings.TrimSpace(r.PostFormValue("newPassword"))
+		if utils.CheckParamsErr(&ret, oldPassword, newPassword) {
+			goto OVER
+		}
+		if exist, s := utils.CheckSessFromCookie(r); exist {
+			goclient.Set(goclient.MakeKey("users", s.Data.(wm.User).Name), wm.EncrytPass(newPassword), &client.SetOptions{PrevValue: oldPassword})
+		} else {
+			utils.CheckErr(errors.New("user error"), &ret)
+		}
+	} else {
+		utils.SetMethodErr(&ret)
+	}
+OVER:
+	utils.Output(w, ret)
 }

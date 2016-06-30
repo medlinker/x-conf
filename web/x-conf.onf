@@ -2,5 +2,5 @@ instanceName=golang-test1
 prjName=app1
 env=prod
 etcd_clinet_urls=http://127.0.0.1:2379
-#web=true
-#web.hostAndPort=:8000
+web=true
+web.hostAndPort=:8000

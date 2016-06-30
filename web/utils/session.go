@@ -18,7 +18,7 @@ type Session struct {
 	// 最长保存时间
 	maxAge time.Duration
 	latest int64
-	data   interface{}
+	Data   interface{}
 }
 
 // NewSession 构造session
