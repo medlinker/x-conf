@@ -16,6 +16,7 @@ import (
 func init() {
 
 	xconf := flag.String("conf", "x-conf.conf", "config file")
+	flag.Parse()
 	goclient.IniConf = libconfig.NewIniConfig(*xconf)
 	goclient.Config()
 

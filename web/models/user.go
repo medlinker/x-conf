@@ -49,7 +49,6 @@ func (u User) ValidPass() bool {
 	if EncrytPass(u.Pass) == resp.Node.Value {
 		return true
 	}
-	fmt.Println(2)
 	return false
 }
 

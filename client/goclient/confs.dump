@@ -1,5 +1,4 @@
-kafka = 88.192.88.88
-mysql.host = 172.168.6.8
 callback = http://172.12.22.8
 redis.host = 192.168.8.8
-share = 
+kafka = 88.192.88.88
+mysql.host = 172.168.6.8

@@ -21,4 +21,6 @@ func init() {
 	http.HandleFunc("/x/conf/del", controllers.DeleteConf)
 	http.HandleFunc("/x/conf/publish", controllers.Publish)
 	http.HandleFunc("/x/conf/heartbeat", controllers.HeartCheck)
+	http.HandleFunc("/x/conf/changePwd", controllers.Modify)
+	http.HandleFunc("/x/conf/addUser", controllers.Create)
 }

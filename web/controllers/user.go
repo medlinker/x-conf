@@ -11,7 +11,7 @@ import (
 
 	"github.com/coreos/etcd/client"
 
-	"github.com/medlinker/x-conf/client/goclient"
+	"x-conf/client/goclient"
 )
 
 // Login 用户登陆
@@ -81,7 +81,11 @@ func Modify(w http.ResponseWriter, r *http.Request) {
 			goto OVER
 		}
 		if exist, s := utils.CheckSessFromCookie(r); exist {
-			goclient.Set(goclient.MakeKey("users", s.Data.(wm.User).Name), wm.EncrytPass(newPassword), &client.SetOptions{PrevValue: oldPassword})
+			_, err := goclient.Set(goclient.MakeKey("users", s.Data.(wm.User).Name), wm.EncrytPass(newPassword), &client.SetOptions{PrevValue: wm.EncrytPass(oldPassword)})
+			if err != nil {
+				utils.CheckErr(err, &ret)
+				goto OVER
+			}
 		} else {
 			utils.CheckErr(errors.New("user error"), &ret)
 		}

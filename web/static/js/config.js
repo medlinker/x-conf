@@ -149,6 +149,52 @@ $(function() {
     $(".changePwd").click(function() {
         $('.ui.small.modal.modifyPwd').modal('show');
     });
+    $(".modPwd").click(function() {
+        let old = $.trim($("#inputOldPassword").val());
+        let newP = $.trim($("#inputNewPassword").val());
+        if (old == "" || newP == "") {
+            alert("input passwords!");
+            return;
+        }
+        $.post(
+            "/x/conf/changePwd",
+            {oldPassword: old, newPassword: newP},
+            function(d) {
+                if (d.code != 0) {
+                    alert(d.msg);
+                    return;
+                }
+                $("#inputOldPassword").val("");
+                $("#inputNewPassword").val("");
+                $('.ui.small.modal.modifyPwd').modal('hide');
+            },
+            "json"
+        );
+    });
+    $(".createUser").click(function() {
+        $('.ui.small.modal.user').modal('show');
+    });
+    $(".creatingUser").click(function() {
+        let username = $.trim($("#inputUsername").val());
+        if (username == "") {
+            alert("input username!");
+            return;
+        }
+        $.post(
+            "/x/conf/changePwd",
+            {oldPassword: old, newPassword: newP},
+            function(d) {
+                if (d.code != 0) {
+                    alert(d.msg);
+                    return;
+                }
+                $("#inputOldPassword").val("");
+                $("#inputNewPassword").val("");
+                $('.ui.small.modal.modifyPwd').modal('hide');
+            },
+            "json"
+        );
+    });
 })
 
 function setPrjs() {
